@@ -14,17 +14,31 @@ IM_END = 2
 MAX_ITERATIONS = 80
 MAX_MAGNITUDE = 2
 
+# fixed points
+FIXED_POINTS = [1j, -1j, 1, -1]
+
+# fixed point color constants
+FP_COLORS = [(200, 0, 255),  # purple, i
+             (255, 0, 0),  # red, -i
+             (0, 255, 0),  # green, 1
+             (255, 166, 0)]  # orange, -1
+
 # function whose Julia set to compute
 FUNCTION = (lambda z: (5 * z - z ** 5) / 4)
 
 
-# returns n such that f^n(value) <
+# returns a tuple (n, max_distance_index) such that f^n(value) < MAX_MAGNITUDE
+# and min_distance_index is the closest fixed point after MAX_ITERATIONS iterations
 def julia_set(value):
     n = 0
     while n < MAX_ITERATIONS and abs(value) < MAX_MAGNITUDE:
         value = FUNCTION(value)
         n += 1
-    return n
+
+    distances = [abs(value - i) for i in FIXED_POINTS]
+    min_distance_index = distances.index(min(distances))
+
+    return n, min_distance_index
 
 
 # create new PIL image
@@ -41,10 +55,12 @@ for x in range(0, WIDTH):
         m = julia_set(c)
 
         # normalizes the color into an RGB 255-scale
-        color = 255 - int(m * 255 / MAX_ITERATIONS)
+        colors = [255 - int(m[0] * (255 - value) / MAX_ITERATIONS)
+                  for value in FP_COLORS[m[1]]]
 
-        # draws a grayscale pixel with n such that f^n(c) > MAX_MAGNITUDE
-        draw.point([x, y], (color, color, color))
+        # draws a pixel of color associated to a fixed point with darkness associated to
+        # "being in the Julia set"
+        draw.point([x, y], tuple(colors))
 
 # saves image into julia_set_output.png
 img.save("julia_set_output.png", "PNG")
