@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw
 import sympy as sym
+from cmath import sqrt
 
 # image dimension constants
 WIDTH = 1000
@@ -54,10 +55,13 @@ def main():
 
     # For complex inputs, replace i/j with '*sym.I'
     # Ex: z^2 - 0.8i => z**2 - 0.8*sym.I
-    sym_equation = input("Equation:")
+    sym_equation = input("Equation: ")
 
     # Get complex roots for fixed points of equation
+    #z = sym.Symbol("z")
     roots = sym.solve([eval(sym_equation + "-z"), 0], [z])
+
+    sym_equation = sym_equation.replace("sym.I","I")
 
     # String Surgery to convert complex sympy roots into complex python roots
     fixed_points = []
@@ -72,9 +76,13 @@ def main():
         fixed_points.append(evaled_root)
 
     # Fix input to evaluate nicely
-    equation = sym_equation.replace("*sym.I", "j")
+    equation = sym_equation.replace("I", "1j")
 
     function = eval("(lambda z:" + equation + ')')
+
+    print(fixed_points)
+    deriv_sym_equation = sym.diff(sym_equation)
+    print([abs(complex(sym.N(deriv_sym_equation.subs(z, pt)))) for pt in fixed_points])
 
     for x in range(0, WIDTH):
         for y in range(0, HEIGHT):
@@ -99,4 +107,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    while True:
+        main()
