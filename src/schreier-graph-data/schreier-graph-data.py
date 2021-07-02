@@ -1,12 +1,14 @@
 from itertools import product
 from copy import deepcopy
 import networkx as nx
+from networkx import networkx
 
 # import pygraphviz
 
 # constants that determine the graph that will be drawn
-NUMBER_OF_LETTERS = 3
-PERMUTATION_CYCLES = [[0, 1], [0, 2]]
+
+NUMBER_OF_LETTERS = 4
+PERMUTATION_CYCLES = [[0, 1], [0, 2], [0, 3]]
 
 
 # given a cycle c (a list of tuples) and a word v (a tuple),
@@ -40,7 +42,7 @@ def make_graph(word_length):
     # edges will be a list of dictionaries from vertices to vertices,
     # where each cycle has its own list
     edges = []
-    for i, c in enumerate(PERMUTATION_CYCLES):
+    for index, c in enumerate(PERMUTATION_CYCLES):
         cycle_edges = {}
         for v in vertices:
             cycle_edges[tuple(v)] = tuple(odometer(c, v))
@@ -50,8 +52,8 @@ def make_graph(word_length):
 
 
 if __name__ == "__main__":
-    # find edges and vertices using above function
-    for i in range(1, 6):
+    for i in range(1, 10):
+        # find edges and vertices using above function
         graph = make_graph(i)
 
         # create a graph using networkx
@@ -62,9 +64,16 @@ if __name__ == "__main__":
 
         for cycle in graph[1]:
             for edge in cycle:
-                network.add_edge(edge, cycle[edge])
+                network.add_edge(edge, cycle[edge], name=str(cycle))
 
-        print(nx.algorithms.distance_measures.diameter(network))
+        # Radius of the graph
+        # print(networkx.algorithms.distance_measures.radius(network))
+
+        # Diameter of the graph
+        # print(networkx.algorithms.distance_measures.diameter(network))
+
+        # Size of the periphery of the graph
+        print(len(networkx.algorithms.distance_measures.periphery(network)))
 
     # convert graph and plot it using pygraphviz
     # a = nx.nx_agraph.to_agraph(network)
