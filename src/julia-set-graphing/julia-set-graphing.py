@@ -16,16 +16,16 @@ IM_END = 2
 MAX_ITERATIONS = 80
 MAX_MAGNITUDE = 2
 
-
 # fixed point color constants
 FP_COLORS = [(200, 0, 255),  # purple
              (255, 0, 0),  # red
              (0, 255, 0),  # green
-             (255, 166, 0), # orange
-             (128,128,128)] # grey
+             (255, 166, 0),  # orange
+             (128, 128, 128)]  # grey
+
 
 # function whose Julia set to compute
-#FUNCTION = (lambda z: (5 * z - z ** 5) / 4)
+# FUNCTION = (lambda z: (5 * z - z ** 5) / 4)
 
 
 # returns a tuple (n, max_distance_index) such that f^n(value) < MAX_MAGNITUDE
@@ -47,10 +47,8 @@ img = Image.new("RGB", (WIDTH, HEIGHT), (0, 0, 0))
 draw = ImageDraw.Draw(img)
 
 
-
 def main():
-
-    #sympy z symbol
+    # sympy z symbol
     z = sym.Symbol('z')
 
     # For complex inputs, replace i/j with '*sym.I'
@@ -72,7 +70,7 @@ def main():
         elif root == "-I":
             evaled_root = eval("-1j")
         else:
-            evaled_root = eval(root.replace("I","* 1j"))
+            evaled_root = eval(root.replace("I", "* 1j"))
         fixed_points.append(evaled_root)
 
     # Fix input to evaluate nicely
