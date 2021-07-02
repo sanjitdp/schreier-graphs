@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw
-import sympy as sym
+from sympy import *
 from cmath import sqrt
 
 # image dimension constants
@@ -24,10 +24,6 @@ FP_COLORS = [(200, 0, 255),  # purple
              (128, 128, 128)]  # grey
 
 
-# function whose Julia set to compute
-# FUNCTION = (lambda z: (5 * z - z ** 5) / 4)
-
-
 # returns a tuple (n, max_distance_index) such that f^n(value) < MAX_MAGNITUDE
 # and min_distance_index is the closest fixed point after MAX_ITERATIONS iterations
 def julia_set(value, function, fixed_points):
@@ -49,38 +45,28 @@ draw = ImageDraw.Draw(img)
 
 def main():
     # sympy z symbol
-    z = sym.Symbol('z')
+    z = Symbol('z')
 
-    # For complex inputs, replace i/j with '*sym.I'
-    # Ex: z^2 - 0.8i => z**2 - 0.8*sym.I
-    sym_equation = input("Equation: ")
+    # For complex inputs, use i
+    sym_equation = input("Equation: ").replace("i", "I")
 
     # Get complex roots for fixed points of equation
-    #z = sym.Symbol("z")
-    roots = sym.solve([eval(sym_equation + "-z"), 0], [z])
-
-    sym_equation = sym_equation.replace("sym.I","I")
+    fixed_point_roots = solve(eval(sym_equation + "-z"), z)
 
     # String Surgery to convert complex sympy roots into complex python roots
     fixed_points = []
-    for i in range(len(roots)):
-        root = str(roots[i][0])
-        if root == "I":
-            evaled_root = eval("1j")
-        elif root == "-I":
-            evaled_root = eval("-1j")
-        else:
-            evaled_root = eval(root.replace("I", "* 1j"))
-        fixed_points.append(evaled_root)
+    for fixed_point in fixed_point_roots:
+        fixed_points.append(eval(str(fixed_point).replace("I", "1j")))
 
     # Fix input to evaluate nicely
     equation = sym_equation.replace("I", "1j")
 
     function = eval("(lambda z:" + equation + ')')
 
-    print(fixed_points)
-    deriv_sym_equation = sym.diff(sym_equation)
-    print([abs(complex(sym.N(deriv_sym_equation.subs(z, pt)))) for pt in fixed_points])
+    print("Fixed points: ", fixed_points)
+    derivative_sym_equation = diff(sym_equation)
+    print("Derivative magnitudes: ",
+          [abs(complex(N(derivative_sym_equation.subs(z, pt)))) for pt in fixed_points])
 
     for x in range(0, WIDTH):
         for y in range(0, HEIGHT):

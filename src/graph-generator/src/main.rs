@@ -1,4 +1,4 @@
-    use num_complex::Complex32 as Complex;
+use num_complex::Complex32 as Complex;
 
 fn main() {
     let zero = 0.0 * Complex::i();
