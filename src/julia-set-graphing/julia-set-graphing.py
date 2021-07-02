@@ -28,7 +28,11 @@ FP_COLORS = [(200, 0, 255),  # purple
 # and min_distance_index is the closest fixed point after MAX_ITERATIONS iterations
 def julia_set(value, function, fixed_points):
     n = 0
+
     while n < MAX_ITERATIONS and abs(value) < MAX_MAGNITUDE:
+        for i in fixed_points:
+            if value == i:
+                return MAX_ITERATIONS, fixed_points.index(i)
         value = function(value)
         n += 1
 
@@ -84,10 +88,10 @@ def main():
 
             # draws a pixel of color associated to a fixed point with darkness associated to
             # "being in the Julia set"
-            draw.point([x, y], tuple(colors))
+            draw.point([x, HEIGHT - y], tuple(colors))
 
     # saves image into julia_set_output.png
-    img.save("julia_set_output.png", "PNG")
+    img.save("julia-set-output.png", "PNG")
 
 
 if __name__ == "__main__":
