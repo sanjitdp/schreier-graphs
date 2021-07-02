@@ -17,11 +17,13 @@ MAX_ITERATIONS = 80
 MAX_MAGNITUDE = 2
 
 # fixed point color constants
-FP_COLORS = [(200, 0, 255),  # purple
-             (255, 0, 0),  # red
-             (0, 255, 0),  # green
-             (255, 166, 0),  # orange
-             (128, 128, 128)]  # grey
+FP_COLORS = [(128, 0, 128),  # purple
+             (128, 0, 0),  # red
+             (0, 128, 0),  # green
+             (0, 0, 128),  # blue
+             (128, 128, 128),  # grey
+             (0, 128, 128),  # teal
+             (128, 128, 0)]  # olive
 
 
 # returns a tuple (n, max_distance_index) such that f^n(value) < MAX_MAGNITUDE
