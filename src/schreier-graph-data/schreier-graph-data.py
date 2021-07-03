@@ -75,6 +75,9 @@ if __name__ == "__main__":
         # Size of the periphery of the graph
         print(len(networkx.algorithms.distance_measures.periphery(network)))
 
+        # Eccentricity of a vertex
+        # print(networkx.algorithms.distance_measures.eccentricity(network, product({0}, repeat=i)))
+
     # convert graph and plot it using pygraphviz
     # a = nx.nx_agraph.to_agraph(network)
     # a.layout(prog="neato")
