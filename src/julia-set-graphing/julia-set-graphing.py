@@ -1,5 +1,6 @@
 from PIL import Image, ImageDraw
 from sympy import *
+import os
 from cmath import sqrt
 
 # image dimension constants
@@ -24,6 +25,9 @@ FP_COLORS = [(128, 0, 128),  # purple
              (128, 128, 128),  # grey
              (0, 128, 128),  # teal
              (128, 128, 0)]  # olive
+
+# directory in which to save output files
+DIRNAME = "../../output/julia-set-visualization"
 
 
 # returns a tuple (n, max_distance_index) such that f^n(value) < MAX_MAGNITUDE
@@ -53,8 +57,12 @@ def main():
     # sympy z symbol
     z = Symbol('z')
 
+    gotten_input = input("Equation (type \"exit\" to end program): ")
+    if gotten_input.lower() == "exit":
+        exit()
+
     # For complex inputs, use i
-    sym_equation = input("Equation: ").replace("i", "I")
+    sym_equation = gotten_input.replace("i", "I")
 
     # Get complex roots for fixed points of equation
     fixed_point_roots = solve(eval(sym_equation + "-z"), z)
@@ -92,8 +100,16 @@ def main():
             # "being in the Julia set"
             draw.point([x, HEIGHT - y], tuple(colors))
 
+    # change into the output directory
+    try:
+        os.mkdir(DIRNAME)
+    except FileExistsError:
+        pass
+    finally:
+        os.chdir(DIRNAME)
+
     # saves image into julia_set_output.png
-    img.save("julia-set-output.png", "PNG")
+    img.save("julia-set-visualization.png", "PNG")
 
 
 if __name__ == "__main__":

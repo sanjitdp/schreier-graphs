@@ -2,13 +2,48 @@ from itertools import product
 from copy import deepcopy
 import networkx as nx
 from networkx import networkx
-
-# import pygraphviz
+import graphviz
+import os
 
 # constants that determine the graph that will be drawn
 
-NUMBER_OF_LETTERS = 4
-PERMUTATION_CYCLES = [[0, 1], [0, 2], [0, 3]]
+PERMUTATION_CYCLES = [[0, 1], [0, 2, 3]]  # what are the permutation cycles?
+DIRECTED = True  # are we studying the directed graph?
+TASK = "VISUALIZE"  # what task are we doing?
+LEVEL = 2  # level to which the program should be run
+DIRNAME = "../../output/schreier-graph-visualization"  # directory in which to save the output file
+
+
+# function to visualize graph
+
+def visualize(nk):
+    # change into the output directory
+    try:
+        os.mkdir(DIRNAME)
+    except FileExistsError:
+        pass
+    finally:
+        os.chdir(DIRNAME)
+
+    # convert graph to DOT language format and save to file
+    nx.drawing.nx_pydot.write_dot(nk, "graph")
+
+    # render graph and remove unnecessary temporary DOT file
+    graphviz.render('neato', 'png', "graph")
+    os.remove("graph")
+
+    return "Graph has been drawn successfully!"
+
+
+# dictionary containing all possible tasks
+
+TASKS_DICTIONARY = {
+    "VISUALIZE": visualize,
+    "RADIUS": lambda nk: networkx.algorithms.distance_measures.radius(nk),
+    "DIAMETER": lambda nk: networkx.algorithms.distance_measures.diameter(nk),
+    "PERIPHERY": lambda nk: networkx.algorithms.distance_measures.periphery(nk),
+    "ECCENTRICITIES": lambda nk: networkx.algorithms.distance_measures.eccentricity(nk)
+}
 
 
 # given a cycle c (a list of tuples) and a word v (a tuple),
@@ -30,8 +65,11 @@ def odometer(c, v):
 # returns a set of edges and vertices given a list of cycles, a word length,
 # and number of letters in the alphabet
 def make_graph(word_length):
+    # how many letters are in the alphabet we're working with?
+    number_of_letters = max(CYCLE[-1] for CYCLE in PERMUTATION_CYCLES) + 1
+
     # letters are all numbers between 0 and NUMBER_OF_LETTERS
-    letters = range(0, NUMBER_OF_LETTERS)
+    letters = range(0, number_of_letters)
 
     # take Cartesian power to figure out what the nodes are
     nodes = list(product(letters, repeat=word_length))
@@ -48,38 +86,33 @@ def make_graph(word_length):
             cycle_edges[tuple(v)] = tuple(odometer(c, v))
         edges.append(cycle_edges)
 
-    return nodes, edges
+    # create a graph using networkx
+    network = nx.MultiDiGraph() if DIRECTED else nx.MultiGraph()
+
+    # find edges and vertices using above function
+    for node in nodes:
+        network.add_node(node)
+
+    for cycle in edges:
+        for edge in cycle:
+            network.add_edge(edge, cycle[edge], name=str(cycle))
+
+    return network
+
+
+# do task depending on TASK constant defined above
+def do_task(level):
+    graph = make_graph(level)
+    print(TASKS_DICTIONARY[TASK](graph))
 
 
 if __name__ == "__main__":
-    for i in range(1, 10):
-        # find edges and vertices using above function
-        graph = make_graph(i)
+    print(TASK + ":", PERMUTATION_CYCLES)
 
-        # create a graph using networkx
-        network = nx.MultiDiGraph()
+    if TASK == "VISUALIZE":
+        do_task(LEVEL)
+        exit(0)
 
-        for node in graph[0]:
-            network.add_node(node)
-
-        for cycle in graph[1]:
-            for edge in cycle:
-                network.add_edge(edge, cycle[edge], name=str(cycle))
-
-        # Radius of the graph
-        # print(networkx.algorithms.distance_measures.radius(network))
-
-        # Diameter of the graph
-        # print(networkx.algorithms.distance_measures.diameter(network))
-
-        # Size of the periphery of the graph
-        print(len(networkx.algorithms.distance_measures.periphery(network)))
-
-        # Eccentricity of a vertex
-        # print(networkx.algorithms.distance_measures.eccentricity(network, product({0}, repeat=i)))
-
-    # convert graph and plot it using pygraphviz
-    # a = nx.nx_agraph.to_agraph(network)
-    # a.layout(prog="neato")
-    #
-    # a.draw("graph.png")
+    for i in range(1, LEVEL + 1):
+        do_task(i)
+        exit(0)

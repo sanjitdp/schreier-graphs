@@ -4,7 +4,7 @@ fn main() {
     let zero = 0.0 * Complex::i();
     let tree = BiColorTree {
         nodes: vec![
-            (zero, 0, vec![1, 2, 3, 4]), 
+            (zero, 0, vec![1, 2, 3, 4]),
             (zero, 0, vec![]),
             (zero, 0, vec![]),
             (zero, 0, vec![]),
@@ -291,7 +291,7 @@ impl Mobius {
         z3: Complex,
         z1_img: Complex,
         z2_img: Complex,
-        z3_img: Complex
+        z3_img: Complex,
     ) -> Mobius {
         let f1 = (z3 - z2) / (z3 - z1);
         let m1 = Mobius {
@@ -346,7 +346,7 @@ fn get_graph(depth: usize, operators: &[Operator]) -> SGraph {
         let p = rot * r;
         let dr = -angle_num * (angle_num * angle).sin();
         let dlen = (dr * dr + r * r).sqrt();
-        let norm = - Complex::i() * rot * 
+        let norm = -Complex::i() * rot *
             Complex::new(dr, r) / dlen;
 
         (p, norm)
