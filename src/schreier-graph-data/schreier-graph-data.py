@@ -9,8 +9,8 @@ import os
 
 PERMUTATION_CYCLES = [[0, 1], [0, 2, 3]]  # what are the permutation cycles?
 DIRECTED = True  # are we studying the directed graph?
-TASK = "VISUALIZE"  # what task are we doing?
-LEVEL = 2  # level to which the program should be run
+TASK = "DIAMETER"  # what task are we doing?
+LEVEL = 5  # level to which the program should be run
 DIRNAME = "../../output/schreier-graph-visualization"  # directory in which to save the output file
 
 
@@ -115,4 +115,3 @@ if __name__ == "__main__":
 
     for i in range(1, LEVEL + 1):
         do_task(i)
-        exit(0)
