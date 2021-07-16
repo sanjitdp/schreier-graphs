@@ -4,11 +4,14 @@ import networkx as nx
 from networkx import networkx
 import graphviz
 import os
+import math
 
 # constants that determine the graph that will be drawn
 
-PERMUTATION_CYCLES = [[0, 1], [0, 2, 3]]  # what are the permutation cycles?
-DIRECTED = True  # are we studying the directed graph?
+CYCLES = [6, 4]
+PERMUTATION_CYCLES = [list(range(0, CYCLES[0])),
+                      [0] + list(range(CYCLES[0], CYCLES[0] + CYCLES[1] - 1))]  # what are the permutation cycles?
+DIRECTED = False  # are we studying the directed graph?
 TASK = "DIAMETER"  # what task are we doing?
 LEVEL = 5  # level to which the program should be run
 DIRNAME = "../../output/schreier-graph-visualization"  # directory in which to save the output file
@@ -48,15 +51,15 @@ TASKS_DICTIONARY = {
 
 # given a cycle c (a list of tuples) and a word v (a tuple),
 # return the odometer's action on v
-def odometer(c, v):
+def odometer(cycle, v):
     if not v:
         return ()
-    if v[0] in c:
+    if v[0] in cycle:
         target = deepcopy(v)
-        if v[0] == c[-1]:
-            return c[0], *odometer(c, v[1:])
+        if v[0] == cycle[-1]:
+            return cycle[0], *odometer(cycle, v[1:])
         else:
-            target[0] = c[c.index(v[0]) + 1]
+            target[0] = cycle[cycle.index(v[0]) + 1]
             return tuple(target)
     else:
         return tuple(v)
@@ -74,16 +77,16 @@ def make_graph(word_length):
     # take Cartesian power to figure out what the nodes are
     nodes = list(product(letters, repeat=word_length))
     vertices = []
-    for n in nodes:
-        vertices.append(list(n))
+    for node in nodes:
+        vertices.append(list(node))
 
     # edges will be a list of dictionaries from vertices to vertices,
     # where each cycle has its own list
     edges = []
-    for index, c in enumerate(PERMUTATION_CYCLES):
+    for index, cycle in enumerate(PERMUTATION_CYCLES):
         cycle_edges = {}
         for v in vertices:
-            cycle_edges[tuple(v)] = tuple(odometer(c, v))
+            cycle_edges[tuple(v)] = tuple(odometer(cycle, v))
         edges.append(cycle_edges)
 
     # create a graph using networkx
@@ -107,11 +110,28 @@ def do_task(level):
 
 
 if __name__ == "__main__":
-    print(TASK + ":", PERMUTATION_CYCLES)
+    c = [len(CYCLE) for CYCLE in PERMUTATION_CYCLES]
+    a = c[0]
+    b = c[1]
+    print(TASK + ":", c)
+    print("Micah's guess (level 2): ",
+          math.floor(a / 2) * (2 * a + 1 - 2 * math.floor(a / 2)) + math.floor(b / 2) * (
+                      a + b + 1 - 2 * math.floor((a + 1) / 2)))
+    print("Gabriel's guess (level 2): ",
+          (a % 2) * (math.floor(a / 2) * (a + 2) + b * math.floor(b / 2)) + ((a + 1) % 2) * (
+                  math.floor(a / 2) * (a + 1) + math.floor(b / 2) * (b + 1)))
 
     if TASK == "VISUALIZE":
         do_task(LEVEL)
         exit(0)
 
-    for i in range(1, LEVEL + 1):
-        do_task(i)
+    for n in range(1, LEVEL + 1):
+        do_task(n)
+        if a % 2 == 1 and b % 2 == 0:
+            print("John's guess: ", (a ** n + a ** (n - 1) + b ** n - 2) / 2)
+        if a % 2 == 1 and b % 2 == 1:
+            print("John's guess: ", (a ** n + a ** (n - 1) + b ** n - b ** (n - 1) - 2) / 2)
+        if a % 2 == 0 and b % 2 == 1:
+            print("John's guess: ", (b ** n - 1 + a * (a ** n - 1) / (a - 1)) / 2)
+        if a % 2 == 0 and b % 2 == 0:
+            print("John's guess: ", a * (a ** n - 1) / (2 * (a - 1)) + b * (b ** n - 1) / (2 * (b - 1)))
