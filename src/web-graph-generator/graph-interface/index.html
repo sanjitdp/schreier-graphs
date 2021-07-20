@@ -1,0 +1,74 @@
+<html>
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+        <style>
+            body {
+                border: 0;
+                background-color: white;
+                display: block;
+                overflow: hidden;
+                margin: 0px;
+            }
+            canvas {
+                width: 100vw;
+                height: 100vh;
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="myCanvas"></canvas>
+        <script type="module">
+            import { init, draw, on_resize, mouse_move, mouse_press, mouse_release, mouse_wheel} from './interface.js';
+
+            const canvas = document.getElementById("myCanvas");//querySelector("#glCanvas");
+            var ctx = canvas.getContext("2d");
+            let setup_done = false;
+
+            async function setup() {
+                await init();
+                
+                setup_done = true;
+                resize();
+            }
+
+            function draw_check() {
+                if (setup_done) {
+                    draw(ctx);
+                }
+                window.requestAnimationFrame(draw_check);
+            }
+
+            function resize(event) {
+                let w = canvas.clientWidth;
+                let h = canvas.clientHeight;
+                canvas.width = w;
+                canvas.height = h;
+                if (setup_done) {
+                    on_resize(w, h);
+                    window.requestAnimationFrame(draw_check);
+                }
+            }
+
+            function keydown(event) {
+                
+            }
+
+            function keyup(event) {
+                
+            }
+            
+            setup();
+
+            resize();
+            window.onresize = resize;
+            document.addEventListener('keydown', keydown);
+            document.addEventListener('keyup', keyup);
+            document.onmousemove = mouse_move;
+            document.onmousedown = mouse_press;
+            document.onmouseup = mouse_release;
+            document.onwheel = mouse_wheel;
+            window.requestAnimationFrame(draw_check);
+        </script>
+    </body>
+</html>
