@@ -4,16 +4,13 @@ import networkx as nx
 from networkx import networkx
 import graphviz
 import os
-import math
 
 # constants that determine the graph that will be drawn
 
-CYCLES = [6, 4]
-PERMUTATION_CYCLES = [list(range(0, CYCLES[0])),
-                      [0] + list(range(CYCLES[0], CYCLES[0] + CYCLES[1] - 1))]  # what are the permutation cycles?
+PERMUTATION_CYCLES = [[0, 1], [0, 2]]  # what are the permutation cycles?
 DIRECTED = False  # are we studying the directed graph?
-TASK = "DIAMETER"  # what task are we doing?
-LEVEL = 5  # level to which the program should be run
+TASK = "ADJ_SPECTRUM"  # what task are we doing?
+LEVEL = 4  # level to which the program should be run
 DIRNAME = "../../output/schreier-graph-visualization"  # directory in which to save the output file
 
 
@@ -45,7 +42,12 @@ TASKS_DICTIONARY = {
     "RADIUS": lambda nk: networkx.algorithms.distance_measures.radius(nk),
     "DIAMETER": lambda nk: networkx.algorithms.distance_measures.diameter(nk),
     "PERIPHERY": lambda nk: networkx.algorithms.distance_measures.periphery(nk),
-    "ECCENTRICITIES": lambda nk: networkx.algorithms.distance_measures.eccentricity(nk)
+    "ECCENTRICITIES": lambda nk: networkx.algorithms.distance_measures.eccentricity(nk),
+    "ADJ_SPECTRUM": lambda nk: networkx.linalg.spectrum.adjacency_spectrum(nk),
+    "LAP_SPECTRUM": lambda nk: networkx.linalg.spectrum.laplacian_spectrum(nk),
+    "NORM_LAP_SPECTRUM": lambda nk: networkx.linalg.spectrum.normalized_laplacian_spectrum(nk),
+    "HES_SPECTRUM": lambda nk: networkx.linalg.spectrum.bethe_hessian_spectrum(nk),
+    "MOD_SPECTRUM": lambda nk: networkx.linalg.spectrum.modularity_spectrum(nk)
 }
 
 
@@ -110,28 +112,10 @@ def do_task(level):
 
 
 if __name__ == "__main__":
-    c = [len(CYCLE) for CYCLE in PERMUTATION_CYCLES]
-    a = c[0]
-    b = c[1]
-    print(TASK + ":", c)
-    print("Micah's guess (level 2): ",
-          math.floor(a / 2) * (2 * a + 1 - 2 * math.floor(a / 2)) + math.floor(b / 2) * (
-                      a + b + 1 - 2 * math.floor((a + 1) / 2)))
-    print("Gabriel's guess (level 2): ",
-          (a % 2) * (math.floor(a / 2) * (a + 2) + b * math.floor(b / 2)) + ((a + 1) % 2) * (
-                  math.floor(a / 2) * (a + 1) + math.floor(b / 2) * (b + 1)))
-
+    print(TASK + ":", PERMUTATION_CYCLES)
     if TASK == "VISUALIZE":
         do_task(LEVEL)
         exit(0)
 
     for n in range(1, LEVEL + 1):
         do_task(n)
-        if a % 2 == 1 and b % 2 == 0:
-            print("John's guess: ", (a ** n + a ** (n - 1) + b ** n - 2) / 2)
-        if a % 2 == 1 and b % 2 == 1:
-            print("John's guess: ", (a ** n + a ** (n - 1) + b ** n - b ** (n - 1) - 2) / 2)
-        if a % 2 == 0 and b % 2 == 1:
-            print("John's guess: ", (b ** n - 1 + a * (a ** n - 1) / (a - 1)) / 2)
-        if a % 2 == 0 and b % 2 == 0:
-            print("John's guess: ", a * (a ** n - 1) / (2 * (a - 1)) + b * (b ** n - 1) / (2 * (b - 1)))
