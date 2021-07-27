@@ -7,8 +7,8 @@ import numpy as np
 import os
 
 # constants that determine the graph that will be drawn
-PERMUTATION_CYCLES = [[0, 1, 2, 3], [0, 3, 4]]  # what are the permutation cycles?
-DIRECTED = False  # are we studying the directed graph?
+PERMUTATION_CYCLES = [[0, 1], [0, 2]]  # what are the permutation cycles?
+DIRECTED = True  # are we studying the directed graph?
 TASK = "ADJ_SPECTRUM"  # what task are we doing?
 LEVEL = 2  # level to which the program should be run
 DIRNAME = "../../output/schreier-graph-visualization"  # directory in which to save the output file
@@ -42,11 +42,11 @@ TASKS_DICTIONARY = {
     "PERIPHERY": lambda nk: networkx.algorithms.distance_measures.periphery(nk),
     "ECCENTRICITIES": lambda nk: networkx.algorithms.distance_measures.eccentricity(nk),
     "ADJACENCY_MATRIX": lambda nk: networkx.linalg.graphmatrix.adjacency_matrix(nk).todense(),
-    "ADJ_SPECTRUM": lambda nk: networkx.linalg.spectrum.adjacency_spectrum(nk),
-    "LAP_SPECTRUM": lambda nk: networkx.linalg.spectrum.laplacian_spectrum(nk).tolist(),
-    "NORM_LAP_SPECTRUM": lambda nk: networkx.linalg.spectrum.normalized_laplacian_spectrum(nk).tolist(),
-    "HES_SPECTRUM": lambda nk: networkx.linalg.spectrum.bethe_hessian_spectrum(nk).tolist(),
-    "MOD_SPECTRUM": lambda nk: networkx.linalg.spectrum.modularity_spectrum(nk).tolist()
+    "ADJ_SPECTRUM": lambda nk: repr(networkx.linalg.spectrum.adjacency_spectrum(nk)),
+    "LAP_SPECTRUM": lambda nk: repr(networkx.linalg.spectrum.laplacian_spectrum(nk)),
+    "NORM_LAP_SPECTRUM": lambda nk: repr(networkx.linalg.spectrum.normalized_laplacian_spectrum(nk)),
+    "HES_SPECTRUM": lambda nk: repr(networkx.linalg.spectrum.bethe_hessian_spectrum(nk)),
+    "MOD_SPECTRUM": lambda nk: repr(networkx.linalg.spectrum.modularity_spectrum(nk))
 }
 
 
@@ -112,11 +112,12 @@ def make_graph(word_length):
 # do task depending on TASK constant defined above
 def do_task(level):
     graph = make_graph(level)
-    print(TASKS_DICTIONARY[TASK](graph))
+    print("LEVEL:", level)
+    print(TASKS_DICTIONARY[TASK](graph), "\n")
 
 
 if __name__ == "__main__":
-    print(TASK + ":", PERMUTATION_CYCLES)
+    print(TASK + ":", PERMUTATION_CYCLES, "\n")
     if TASK == "VISUALIZE":
         do_task(LEVEL)
         exit(0)
