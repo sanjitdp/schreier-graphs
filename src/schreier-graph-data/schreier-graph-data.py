@@ -1,7 +1,6 @@
 from itertools import product
 from copy import deepcopy
 import networkx as nx
-from networkx import networkx
 import graphviz as gv
 import numpy as np
 import sympy as sym
@@ -9,8 +8,8 @@ import os
 
 # constants that determine the graph that will be drawn
 PERMUTATION_CYCLES = [[0, 1], [0, 2]]  # what are the permutation cycles?
-DIRECTED = True  # are we studying the directed graph?
-TASK = "ADJ_CHAR_POLY"  # what task are we doing?
+DIRECTED = False  # are we studying the directed graph?
+TASK = "ADJ_EIGENVECTORS"  # what task are we doing?
 LEVEL = 2  # level to which the program should be run
 DIRNAME = "../../output/schreier-graph-visualization"  # directory in which to save the output file
 
@@ -35,25 +34,30 @@ def visualize(nk):
     return "Graph has been drawn successfully!"
 
 
+# returns a string containing the factored characteristic polynomial
 def adj_char_poly(nk):
-    adjacency_matrix = sym.Matrix(networkx.to_numpy_matrix(nk))
-    return adjacency_matrix.charpoly()
+    adjacency_matrix = sym.Matrix(nx.to_numpy_matrix(nk))
+    char_poly = adjacency_matrix.charpoly()
+    cp = str(sym.Poly(char_poly, domain="ZZ"))
+    to_factor = cp[5:].split(",")[0].replace("lambda", "x")
+    return sym.polys.polytools.factor(to_factor)
 
 
 # dictionary containing all possible tasks
 TASKS_DICTIONARY = {
     "VISUALIZE": visualize,
-    "RADIUS": lambda nk: networkx.algorithms.distance_measures.radius(nk),
-    "DIAMETER": lambda nk: networkx.algorithms.distance_measures.diameter(nk),
-    "PERIPHERY": lambda nk: networkx.algorithms.distance_measures.periphery(nk),
-    "ECCENTRICITIES": lambda nk: networkx.algorithms.distance_measures.eccentricity(nk),
-    "ADJACENCY_MATRIX": lambda nk: networkx.linalg.graphmatrix.adjacency_matrix(nk).todense(),
-    "ADJ_SPECTRUM": lambda nk: repr(networkx.linalg.spectrum.adjacency_spectrum(nk)),
+    "RADIUS": lambda nk: nx.algorithms.distance_measures.radius(nk),
+    "DIAMETER": lambda nk: nx.algorithms.distance_measures.diameter(nk),
+    "PERIPHERY": lambda nk: nx.algorithms.distance_measures.periphery(nk),
+    "ECCENTRICITIES": lambda nk: nx.algorithms.distance_measures.eccentricity(nk),
+    "ADJACENCY_MATRIX": lambda nk: nx.linalg.graphmatrix.adjacency_matrix(nk).todense(),
+    "ADJ_SPECTRUM": lambda nk: repr(nx.linalg.spectrum.adjacency_spectrum(nk)),
     "ADJ_CHAR_POLY": adj_char_poly,
-    "LAP_SPECTRUM": lambda nk: repr(networkx.linalg.spectrum.laplacian_spectrum(nk)),
-    "NORM_LAP_SPECTRUM": lambda nk: repr(networkx.linalg.spectrum.normalized_laplacian_spectrum(nk)),
-    "HES_SPECTRUM": lambda nk: repr(networkx.linalg.spectrum.bethe_hessian_spectrum(nk)),
-    "MOD_SPECTRUM": lambda nk: repr(networkx.linalg.spectrum.modularity_spectrum(nk))
+    "ADJ_EIGENVECTORS": lambda nk: repr(np.linalg.eig(nx.to_numpy_matrix(nk))[1].transpose()),
+    "LAP_SPECTRUM": lambda nk: repr(nx.linalg.spectrum.laplacian_spectrum(nk)),
+    "NORM_LAP_SPECTRUM": lambda nk: repr(nx.linalg.spectrum.normalized_laplacian_spectrum(nk)),
+    "HES_SPECTRUM": lambda nk: repr(nx.linalg.spectrum.bethe_hessian_spectrum(nk)),
+    "MOD_SPECTRUM": lambda nk: repr(nx.linalg.spectrum.modularity_spectrum(nk))
 }
 
 
@@ -109,9 +113,9 @@ def make_graph(word_length):
             network.add_edge(edge, cycle[edge], name=str(cycle))
 
     if not DIRECTED:
-        directed_matrix = networkx.to_numpy_matrix(network)
+        directed_matrix = nx.to_numpy_matrix(network)
         undirected_matrix = np.add(directed_matrix, directed_matrix.transpose())
-        return networkx.from_numpy_matrix(undirected_matrix, parallel_edges=True, create_using=nx.MultiGraph)
+        return nx.from_numpy_matrix(undirected_matrix, parallel_edges=True, create_using=nx.MultiGraph)
 
     return network
 
