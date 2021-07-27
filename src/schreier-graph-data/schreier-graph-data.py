@@ -4,12 +4,13 @@ import networkx as nx
 from networkx import networkx
 import graphviz as gv
 import numpy as np
+import sympy as sym
 import os
 
 # constants that determine the graph that will be drawn
 PERMUTATION_CYCLES = [[0, 1], [0, 2]]  # what are the permutation cycles?
 DIRECTED = True  # are we studying the directed graph?
-TASK = "ADJ_SPECTRUM"  # what task are we doing?
+TASK = "ADJ_CHAR_POLY"  # what task are we doing?
 LEVEL = 2  # level to which the program should be run
 DIRNAME = "../../output/schreier-graph-visualization"  # directory in which to save the output file
 
@@ -34,6 +35,11 @@ def visualize(nk):
     return "Graph has been drawn successfully!"
 
 
+def adj_char_poly(nk):
+    adjacency_matrix = sym.Matrix(networkx.to_numpy_matrix(nk))
+    return adjacency_matrix.charpoly()
+
+
 # dictionary containing all possible tasks
 TASKS_DICTIONARY = {
     "VISUALIZE": visualize,
@@ -43,6 +49,7 @@ TASKS_DICTIONARY = {
     "ECCENTRICITIES": lambda nk: networkx.algorithms.distance_measures.eccentricity(nk),
     "ADJACENCY_MATRIX": lambda nk: networkx.linalg.graphmatrix.adjacency_matrix(nk).todense(),
     "ADJ_SPECTRUM": lambda nk: repr(networkx.linalg.spectrum.adjacency_spectrum(nk)),
+    "ADJ_CHAR_POLY": adj_char_poly,
     "LAP_SPECTRUM": lambda nk: repr(networkx.linalg.spectrum.laplacian_spectrum(nk)),
     "NORM_LAP_SPECTRUM": lambda nk: repr(networkx.linalg.spectrum.normalized_laplacian_spectrum(nk)),
     "HES_SPECTRUM": lambda nk: repr(networkx.linalg.spectrum.bethe_hessian_spectrum(nk)),
