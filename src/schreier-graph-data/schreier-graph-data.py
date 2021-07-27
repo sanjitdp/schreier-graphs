@@ -9,7 +9,7 @@ import os
 # constants that determine the graph that will be drawn
 PERMUTATION_CYCLES = [[0, 1], [0, 2]]  # what are the permutation cycles?
 DIRECTED = False  # are we studying the directed graph?
-TASK = "ADJ_EIGENVECTORS"  # what task are we doing?
+TASK = "ADJ_CHAR_POLY"  # what task are we doing?
 LEVEL = 2  # level to which the program should be run
 DIRNAME = "../../output/schreier-graph-visualization"  # directory in which to save the output file
 
@@ -40,7 +40,8 @@ def adj_char_poly(nk):
     char_poly = adjacency_matrix.charpoly()
     cp = str(sym.Poly(char_poly, domain="ZZ"))
     to_factor = cp[5:].split(",")[0].replace("lambda", "x")
-    return sym.polys.polytools.factor(to_factor)
+    return str(sym.polys.polytools.factor(to_factor)).replace("**", "^") \
+        .replace("*", "").replace("(", " (")[1:]
 
 
 # dictionary containing all possible tasks
