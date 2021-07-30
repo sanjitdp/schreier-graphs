@@ -7,9 +7,9 @@ import sympy as sym
 import os
 
 # constants that determine the graph that will be drawn
-PERMUTATION_CYCLES = [[0, 1], [0, 2]]  # what are the permutation cycles?
+PERMUTATION_CYCLES = [[0, 1, 2], [0, 3, 4]]  # what are the permutation cycles?
 DIRECTED = False  # are we studying the directed graph?
-TASK = "ADJ_CHAR_POLY"  # what task are we doing?
+TASK = "ADJ_CHAR_POLY_NO_FACTOR"  # what task are we doing?
 LEVEL = 2  # level to which the program should be run
 DIRNAME = "../../output/schreier-graph-visualization"  # directory in which to save the output file
 
@@ -43,6 +43,11 @@ def adj_char_poly(nk):
     return str(sym.polys.polytools.factor(to_factor)).replace("**", "^") \
         .replace("*", "").replace("(", " (")[1:]
 
+def adj_char_poly_no_factor(nk):
+    adjacency_matrix = sym.Matrix(nx.to_numpy_matrix(nk))
+    char_poly = adjacency_matrix.charpoly()
+    cp = str(sym.Poly(char_poly, domain="ZZ"))[5:].split(",")[0].replace("lambda", "x").replace("**", "^").replace("*", "")
+    return cp
 
 # dictionary containing all possible tasks
 TASKS_DICTIONARY = {
@@ -54,6 +59,7 @@ TASKS_DICTIONARY = {
     "ADJACENCY_MATRIX": lambda nk: nx.linalg.graphmatrix.adjacency_matrix(nk).todense(),
     "ADJ_SPECTRUM": lambda nk: repr(nx.linalg.spectrum.adjacency_spectrum(nk)),
     "ADJ_CHAR_POLY": adj_char_poly,
+    "ADJ_CHAR_POLY_NO_FACTOR": adj_char_poly_no_factor,
     "ADJ_EIGENVECTORS": lambda nk: repr(np.linalg.eig(nx.to_numpy_matrix(nk))[1].transpose()),
     "LAP_SPECTRUM": lambda nk: repr(nx.linalg.spectrum.laplacian_spectrum(nk)),
     "NORM_LAP_SPECTRUM": lambda nk: repr(nx.linalg.spectrum.normalized_laplacian_spectrum(nk)),
@@ -70,7 +76,7 @@ def odometer(cycle, v):
     if v[0] in cycle:
         target = deepcopy(v)
         if v[0] == cycle[-1]:
-            return cycle[0], *odometer(cycle, v[1:])
+            return (cycle[0],) + odometer(cycle, v[1:])
         else:
             target[0] = cycle[cycle.index(v[0]) + 1]
             return tuple(target)
