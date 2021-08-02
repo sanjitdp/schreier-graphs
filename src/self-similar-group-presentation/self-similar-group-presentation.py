@@ -85,9 +85,9 @@ class Generator:
         return Generator(action_product, permutation_product)
 
     def __pow__(self, power):
-        exponent_temp = copy.deepcopy(self)
+        exponent_temp = Generator(self.action, self.permutation)
 
-        for j in range(0, power):
+        for j in range(0, power - 1):
             exponent_temp *= self
 
         return exponent_temp
@@ -113,7 +113,7 @@ def is_identity(generator):
 ACTION_SIZE = 3
 x = Generator(Symbol("x"), [0, 1], basic_generator=True)
 y = Generator(Symbol("y"), [0, 2], basic_generator=True)
-WORD = (x * y * (~x) * (~y)) ** 3
+WORD = ((x ** 2) * (y ** 2) * ((~x) ** 2) * ((~y) ** 2)) ** 3
 
 
 if __name__ == "__main__":
