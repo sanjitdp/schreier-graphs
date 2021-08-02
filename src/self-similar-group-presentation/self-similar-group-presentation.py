@@ -57,6 +57,17 @@ class Expression:
             expression_string += str(symbol)
         return expression_string
 
+    def to_parse(self):
+        expression_string = ""
+        for symbol in self.expression:
+            expression_string += str(symbol)
+            expression_string += "*"
+
+        if expression_string[-1] == "*":
+            expression_string = expression_string[:-1]
+
+        return expression_string
+
 
 # class that represents a generator object
 class Generator:
@@ -102,7 +113,9 @@ class Generator:
 def is_identity(generator):
     if generator.permutation.is_Identity:
         for expression in generator.action:
-            if str(expression) != "1":
+            if str(expression) == "1":
+                continue
+            elif not is_identity(eval(expression.to_parse())):
                 return False
         return True
     else:
