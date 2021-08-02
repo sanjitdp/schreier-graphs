@@ -110,16 +110,21 @@ class Generator:
 
 
 # function to determine if a word is the identity
-def is_identity(generator):
+def is_identity(generator, identity_level):
     if generator.permutation.is_Identity:
         for expression in generator.action:
             if str(expression) == "1":
                 continue
-            elif not is_identity(eval(expression.to_parse())):
-                return False
-        return True
+            else:
+                recurse = is_identity(eval(expression.to_parse()), identity_level + 1)
+                if not recurse[0]:
+                    return False, identity_level
+                else:
+                    identity_level = recurse[1]
+
+        return True, identity_level
     else:
-        return False
+        return False, identity_level
 
 
 # constants that represent group generators
@@ -143,6 +148,9 @@ if __name__ == "__main__":
     print("]\n")
 
     print("The given word is ", end="")
-    if not is_identity(WORD):
-        print("not ", end="")
-    print("the identity.")
+    identity = is_identity(WORD, 1)
+    if identity[0]:
+        print("the identity. This word becomes the identity at recursion level", identity[1], end=".\n")
+    else:
+        if not identity[0]:
+            print("not the identity.")
