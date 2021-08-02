@@ -43,11 +43,13 @@ def adj_char_poly(nk):
     return str(sym.polys.polytools.factor(to_factor)).replace("**", "^") \
         .replace("*", "").replace("(", " (")[1:]
 
+
 def adj_char_poly_no_factor(nk):
     adjacency_matrix = sym.Matrix(nx.to_numpy_matrix(nk))
     char_poly = adjacency_matrix.charpoly()
-    cp = str(sym.Poly(char_poly, domain="ZZ"))[5:].split(",")[0].replace("lambda", "x").replace("**", "^").replace("*", "")
+    cp = str(sym.Poly(char_poly, domain="ZZ"))[5:].split(",")[0].replace("lambda", "x").replace("**", "^")
     return cp
+
 
 # dictionary containing all possible tasks
 TASKS_DICTIONARY = {
@@ -76,7 +78,7 @@ def odometer(cycle, v):
     if v[0] in cycle:
         target = deepcopy(v)
         if v[0] == cycle[-1]:
-            return (cycle[0],) + odometer(cycle, v[1:])
+            return cycle[0], *odometer(cycle, v[1:])
         else:
             target[0] = cycle[cycle.index(v[0]) + 1]
             return tuple(target)
