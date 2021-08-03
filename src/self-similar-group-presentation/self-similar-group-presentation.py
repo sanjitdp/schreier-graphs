@@ -1,7 +1,8 @@
 from sympy.combinatorics import Permutation
-import copy
+from copy import deepcopy
 
 
+# class to represent a single symbol
 class Symbol(str):
     inverse = False
 
@@ -15,11 +16,13 @@ class Symbol(str):
         if str(self) == "1":
             return self
 
-        inverse = copy.deepcopy(self)
+        inverse = deepcopy(self)
         inverse.inverse = ~self.inverse
         return inverse
 
 
+# function to clean pairs of a symbol and its inverse in a word,
+# takes in a list of symbols and outputs a list of symbols
 def clean_inverse_pairs(expression):
     for index, symbol in enumerate(expression):
         if index < len(expression) - 1:
@@ -29,6 +32,8 @@ def clean_inverse_pairs(expression):
                 return clean_inverse_pairs(expression)
 
 
+# function to remove all occurrences of 1 given a nontrivial word,
+# takes in a list of symbols and outputs a list of symbols
 def simplify(expression):
     simplified = [symbol for symbol in expression if str(symbol) != "1"]
     clean_inverse_pairs(simplified)
@@ -39,6 +44,7 @@ def simplify(expression):
     return simplified
 
 
+# class to represent expression - list of symbols
 class Expression:
     def __init__(self, expr_list):
         self.expression = simplify(expr_list)
@@ -69,7 +75,8 @@ class Expression:
         return expression_string
 
 
-# class that represents a generator object
+# class that represents a generator object,
+# composed of a sympy permutation and an action
 class Generator:
     def __init__(self, action, permutation, basic_generator=False):
         if type(permutation) == Permutation:
@@ -109,7 +116,9 @@ class Generator:
         return Generator(inverse_action, inverse_permutation)
 
 
-# function to determine if a word is the identity
+# function to determine if a word is the identity,
+# returns tuple containing whether a word is the identity,
+# and if so, at what recursion level it becomes the identity
 def is_identity(generator, identity_level):
     if generator.permutation.is_Identity:
         for expression in generator.action:
@@ -127,13 +136,14 @@ def is_identity(generator, identity_level):
         return False, identity_level
 
 
-# constants that represent group generators
+# constants that represent group generators and word
 ACTION_SIZE = 3
 x = Generator(Symbol("x"), [0, 1], basic_generator=True)
 y = Generator(Symbol("y"), [0, 2], basic_generator=True)
 WORD = ((x ** 2) * (y ** 2) * ((~x) ** 2) * ((~y) ** 2)) ** 3
 
 
+# prints simplified word and whether the word is the identity
 if __name__ == "__main__":
     print("word:", WORD.permutation, end=" ")
 
