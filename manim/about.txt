@@ -1,0 +1,6 @@
+These files are for use with the library Manim:
+https://www.manim.community/
+
+Use
+py -m manim *filename *scenename -p
+to generate and preview a scene.
