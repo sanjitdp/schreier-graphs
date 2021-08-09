@@ -1,5 +1,4 @@
 # telling GitHub's linguist to ignore large files
 
 src/iterated-monodromy-action/* linguist-vendored
-src/web-graph-generator/graph-generator/src/* linguist-vendored
-src/schreier-graph-data/*.nb linguist-vendored
+src/schreier-graph-data/CharPolys.nb linguist-vendored
