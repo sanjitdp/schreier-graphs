@@ -4,6 +4,8 @@ For permutation cycles [[0, 1], [0, 2]]
 
 import matplotlib.pyplot as plt
 
+LEVEL = 4
+
 level_1_lambdas = [-2. + 0.j, 4. + 0.j, 2. + 0.j]
 
 level_2_lambdas = [-2. + 0.j, -0.73205081 + 0.j, 4. + 0.j, 2.73205081 + 0.j,
@@ -61,6 +63,7 @@ def list_maker(lis):
 def element_counter_and_labeler(lis, level):
     count_list = []
     full_list = []
+    total_multiplicity = len(lis)
     for i in range(len(lis)):
         count_list.append(0)
         for j in range(len(lis)):
@@ -70,7 +73,7 @@ def element_counter_and_labeler(lis, level):
             else:
                 continue
     for i in range(len(lis)):
-        full_list.append((lis[i], count_list[i], level))
+        full_list.append((lis[i], count_list[i]/total_multiplicity, level))
     list_final = list(set(full_list))
     return list_final
 
@@ -85,6 +88,8 @@ level_3_list = element_counter_and_labeler(list_maker(level_3_lambdas), 3)
 
 level_4_list = element_counter_and_labeler(list_maker(level_4_lambdas), 4)
 
+super_list = [level_1_list, level_2_list, level_3_list, level_4_list]
+
 ###############################################################################
 
 
@@ -95,23 +100,54 @@ def element_label(lis, num):
         x.append(lis[i][num])
     return x
 
+# for ordering eigenvalue lists by their level
+def level_sort_key(lst):
+    return lst[2]
 
-# list values partitioned for plotting
-x_1 = element_label(level_1_list, 0)
-y_1 = element_label(level_1_list, 1)
-z_1 = element_label(level_1_list, 2)
+# for finding which eigenvalues generate at which level of the graph
+def eigen_level(lis):
+    diff_lvl_same_eigen = []
+    for i in range(LEVEL):
+        for j in range(LEVEL):
+            for k in range(len(lis[i])):
+                for l in range(len(lis[j])):
+                    if lis[i][k][0] == lis[j][l][0]:
+                        a = lis[i][k]
+                        b = lis[j][l]
+                        diff_lvl_same_eigen.append(a)
+                        diff_lvl_same_eigen.append(b)
+                    else:
+                        continue
+    no_dups = list(set(diff_lvl_same_eigen))
+    combined_list = []
+    for i in range(len(no_dups)):
+        eigen = no_dups[i][0]
+        same_eigen = []
+        for j in range(len(no_dups)):
+            if eigen == no_dups[j][0]:
+                same_eigen.append(no_dups[j])
+        same_eigen.sort(key=level_sort_key)
+        combined_list.append(tuple(same_eigen))
+    final_list = list(set(combined_list))
+    for i in range(len(final_list)):
+        final_list[i] = list(final_list[i])
+    return final_list
 
-x_2 = element_label(level_2_list, 0)
-y_2 = element_label(level_2_list, 1)
-z_2 = element_label(level_2_list, 2)
+#removes eigenvalues from eigen_level list that appear at the last level of Schreier graph to make plotting better
+def shortener(lis):
+    shortened_list = []
+    for i in range(len(lis)):
+        if len(lis[i]) == 1:
+            continue
+        else:
+            shortened_list.append(lis[i])
+    return shortened_list
 
-x_3 = element_label(level_3_list, 0)
-y_3 = element_label(level_3_list, 1)
-z_3 = element_label(level_3_list, 2)
+continuity_lines_list = shortener(eigen_level(super_list))
 
+# holdover from v1 - basically here to set axis bounds for now
 x_4 = element_label(level_4_list, 0)
 y_4 = element_label(level_4_list, 1)
-z_4 = element_label(level_4_list, 2)
 
 # syntax for 3-D projection
 ax = plt.axes(projection='3d')
@@ -122,14 +158,24 @@ ax.set_ylim3d(1, 4)
 ax.set_zlim3d(0, max(y_4))
 
 # listing each set of level eigenvalues
-ax.scatter(x_4, y_4, z_4, zdir='y')
-ax.scatter(x_3, y_3, z_3, zdir='y')
-ax.scatter(x_2, y_2, z_2, zdir='y')
-ax.scatter(x_1, y_1, z_1, zdir='y')
+for i in range(len(super_list)):
+    x = element_label(super_list[i], 0)
+    y = element_label(super_list[i], 1)
+    z = element_label(super_list[i], 2)
+    ax.scatter(x, y, z, zdir='y')
+
+
+# plotting lines connecting same eigenvalues throughout levels
+for i in range(len(continuity_lines_list)):
+    x = element_label(continuity_lines_list[i], 0)
+    y = element_label(continuity_lines_list[i], 1)
+    z = element_label(continuity_lines_list[i], 2)
+    ax.plot(x,y,z, zdir='y')
+
 
 # graph labeling
 ax.set_title('Spectrum Distribution')
 ax.set_xlabel('Eigenvalue')
 ax.set_ylabel('Level of Schreier Graph')
-ax.set_zlabel('Multiplicity')
+ax.set_zlabel('Relative Multiplicity')
 plt.show()
